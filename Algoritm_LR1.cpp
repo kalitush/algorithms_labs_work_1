@@ -1,5 +1,3 @@
-//Для второго коммита
-
 struct LinearList
 {
 int coeff;
