@@ -1,3 +1,5 @@
+//Для первого коммита
+
 struct LinearList
 {
 int coeff;
