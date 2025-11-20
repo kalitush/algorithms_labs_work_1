@@ -1,47 +1,68 @@
 #include <iostream>
 using namespace std;
 
-// Структура узла линейного односвязного списка
+// Узел односвязного списка
 struct Node {
     int data;
     Node* next;
-    
-    // Конструктор
-    Node(int value) : data(value), next(nullptr) {}
+    Node(int val) : data(val), next(nullptr) {}
 };
 
-// Класс для работы с линейным односвязным списком
+// Класс линейного односвязного списка
 class LinearList {
 private:
     Node* head;
-
 public:
-    // Конструктор
     LinearList() : head(nullptr) {}
-    
-    // Деструктор
-    ~LinearList() {
-        clear();
-    }
-    
+
     // Добавление элемента в конец списка
-    void append(int value) {
+    void addElement(int value) {
         Node* newNode = new Node(value);
-        
         if (!head) {
             head = newNode;
-        } else {
-            Node* temp = head;
-            while (temp->next) {
-                temp = temp->next;
-            }
-            temp->next = newNode;
+            return;
         }
+        Node* temp = head;
+        while (temp->next) {
+            temp = temp->next;
+        }
+        temp->next = newNode;
     }
-    
-    // Вывод списка на экран
-    void print(const string& message) const {
-        cout << message;
+
+    // Удаление элемента по значению
+    void removeElement(int value) {
+        if (!head) {
+            cout << "Список пуст!" << endl;
+            return;
+        }
+        if (head->data == value) {
+            Node* temp = head;
+            head = head->next;
+            delete temp;
+            cout << "Элемент " << value << " удален." << endl;
+            return;
+        }
+        Node* current = head;
+        Node* prev = nullptr;
+        while (current && current->data != value) {
+            prev = current;
+            current = current->next;
+        }
+        if (!current) {
+            cout << "Элемент " << value << " не найден." << endl;
+            return;
+        }
+        prev->next = current->next;
+        delete current;
+        cout << "Элемент " << value << " удален." << endl;
+    }
+
+    // Вывод списка
+    void printList() {
+        if (!head) {
+            cout << "Список пуст!" << endl;
+            return;
+        }
         Node* temp = head;
         while (temp) {
             cout << temp->data << " ";
@@ -49,78 +70,101 @@ public:
         }
         cout << endl;
     }
-    
-    // Разделение списка на чётные и нечётные элементы
-    LinearList separateEvenOdd() {
-        LinearList result;
-        Node* temp = head;
-        
-        // Сначала добавляем все чётные элементы
-        while (temp) {
-            if (temp->data % 2 == 0) {
-                result.append(temp->data);
+
+    // Разделение на четные и нечетные элементы
+    void splitEvenOdd() {
+        LinearList evenList; // Список для четных
+        LinearList oddList;  // Список для нечетных
+
+        Node* current = head;
+        while (current) {
+            if (current->data % 2 == 0) {
+                evenList.addElement(current->data);
+            } else {
+                oddList.addElement(current->data);
             }
-            temp = temp->next;
+            current = current->next;
         }
-        
-        // Затем добавляем все нечётные элементы
-        temp = head;
-        while (temp) {
-            if (temp->data % 2 != 0) {
-                result.append(temp->data);
-            }
-            temp = temp->next;
-        }
-        
-        return result;
+
+        cout << "Четные элементы (x1...xk): ";
+        evenList.printList();
+        cout << "Нечетные элементы (y1...yk): ";
+        oddList.printList();
     }
-    
-    // Очистка списка
-    void clear() {
-        while (head) {
-            Node* temp = head;
-            head = head->next;
-            delete temp;
+
+    // Деструктор для освобождения памяти
+    ~LinearList() {
+        Node* current = head;
+        while (current) {
+            Node* next = current->next;
+            delete current;
+            current = next;
         }
-    }
-    
-    // Получение головы списка (для демонстрационных целей)
-    Node* getHead() const {
-        return head;
     }
 };
 
-// Основная программа
+// Функция для безопасного ввода целого числа
+int getIntegerInput() {
+    int value;
+    while (!(cin >> value)) {
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cout << "Ошибка! Введите целое число: ";
+    }
+    return value;
+}
+
+// Функция для вывода меню
+void printMenu() {
+    cout << "\n=== МЕНЮ ===" << endl;
+    cout << "1. Добавить элемент" << endl;
+    cout << "2. Удалить элемент" << endl;
+    cout << "3. Вывести список" << endl;
+    cout << "4. Разделить на четные/нечетные" << endl;
+    cout << "5. Выход" << endl;
+    cout << "Выберите действие: ";
+}
+
 int main() {
     LinearList list;
-    int n, value;
-    
-    cout << "ЛАБОРАТОРНАЯ РАБОТА №1" << endl;
-    cout << "Вариант 6: Разделение на чётные и нечётные элементы" << endl;
-    cout << "=====================================================" << endl;
-    
-    // Ввод данных
-    cout << "Введите количество элементов (n): ";
-    cin >> n;
-    
-    cout << "Введите " << n << " целых чисел:" << endl;
+    int choice, value, n;
+
+    cout << "Введите количество элементов в списке: ";
+    n = getIntegerInput();
+    cout << "Введите элементы a1, a2, ..., an:" << endl;
     for (int i = 0; i < n; i++) {
-        cout << "Элемент " << (i + 1) << ": ";
-        cin >> value;
-        list.append(value);
+        value = getIntegerInput();
+        list.addElement(value);
     }
-    
-    // Вывод исходного списка
-    list.print("Исходный список: ");
-    
-    // Разделение на чётные и нечётные
-    LinearList result = list.separateEvenOdd();
-    
-    // Вывод результирующего списка
-    result.print("Результирующий список (чётные + нечётные): ");
-    
-    cout << "=====================================================" << endl;
-    cout << "Программа завершена." << endl;
-    
+
+    do {
+        printMenu();
+        choice = getIntegerInput();
+        switch (choice) {
+            case 1:
+                cout << "Введите значение для добавления: ";
+                value = getIntegerInput();
+                list.addElement(value);
+                break;
+            case 2:
+                cout << "Введите значение для удаления: ";
+                value = getIntegerInput();
+                list.removeElement(value);
+                break;
+            case 3:
+                cout << "Текущий список: ";
+                list.printList();
+                break;
+            case 4:
+                list.splitEvenOdd();
+                break;
+            case 5:
+                cout << "Выход..." << endl;
+                break;
+            default:
+                cout << "Неверный выбор!" << endl;
+        }
+    } while (choice != 5);
+
     return 0;
 }
